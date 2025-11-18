@@ -150,8 +150,12 @@ public:
    void disconnect();
    boolean publish(const char* topic, const char* payload);
    boolean publish(const char* topic, const char* payload, boolean retained);
-   boolean publish(const char* topic, const uint8_t * payload, unsigned int plength);
-   boolean publish(const char* topic, const uint8_t * payload, unsigned int plength, boolean retained);
+   boolean publish(const char* topic, const uint8_t* payload, unsigned int plength);
+   boolean publish(const char* topic, const uint8_t* payload, unsigned int plength, boolean retained);
+   boolean publish(const char* topic, const char* payload, uint8_t QoS);
+   boolean publish(const char* topic, const char* payload, boolean retained, uint8_t QoS);
+   boolean publish(const char* topic, const uint8_t* payload, unsigned int plength, uint8_t QoS);
+   boolean publish(const char* topic, const uint8_t * payload, unsigned int plength, boolean retained, uint8_t QoS);
    boolean publish_P(const char* topic, const char* payload, boolean retained);
    boolean publish_P(const char* topic, const uint8_t * payload, unsigned int plength, boolean retained);
    // Start to publish a message.

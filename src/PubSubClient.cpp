@@ -446,6 +446,22 @@ boolean PubSubClient::publish(const char* topic, const uint8_t* payload, unsigne
 }
 
 boolean PubSubClient::publish(const char* topic, const uint8_t* payload, unsigned int plength, boolean retained) {
+    return publish(topic, payload, plength, retained, MQTTQOS0);
+}
+
+boolean PubSubClient::publish(const char* topic, const char* payload, uint8_t QoS) {
+    return publish(topic,(const uint8_t*)payload, payload ? strnlen(payload, this->bufferSize) : 0,false, QoS);
+}
+
+boolean PubSubClient::publish(const char* topic, const char* payload, boolean retained, uint8_t QoS) {
+    return publish(topic,(const uint8_t*)payload, payload ? strnlen(payload, this->bufferSize) : 0,retained, QoS);
+}
+
+boolean PubSubClient::publish(const char* topic, const uint8_t* payload, unsigned int plength, uint8_t QoS) {
+    return publish(topic, payload, plength, false, QoS);
+}
+
+boolean PubSubClient::publish(const char* topic, const uint8_t* payload, unsigned int plength, boolean retained, uint8_t QoS) {
     if (connected()) {
         if (this->bufferSize < MQTT_MAX_HEADER_SIZE + 2+strnlen(topic, this->bufferSize) + plength) {
             // Too long
