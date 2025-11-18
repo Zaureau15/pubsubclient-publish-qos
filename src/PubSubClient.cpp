@@ -463,13 +463,25 @@ boolean PubSubClient::publish(const char* topic, const uint8_t* payload, unsigne
 
 boolean PubSubClient::publish(const char* topic, const uint8_t* payload, unsigned int plength, boolean retained, uint8_t QoS) {
     if (connected()) {
-        if (this->bufferSize < MQTT_MAX_HEADER_SIZE + 2+strnlen(topic, this->bufferSize) + plength) {
+        if(!(QoS == MQTTQOS0 || QoS == MQTTQOS1 || QoS == MQTTQOS2)) QoS = MQTTQOS0; // for safety
+
+        uint8_t extraForQoS = (QoS > MQTTQOS0) ? 2 : 0;
+        if (this->bufferSize < MQTT_MAX_HEADER_SIZE + 2 + strnlen(topic, this->bufferSize) + extraForQoS + plength) {
             // Too long
             return false;
         }
         // Leave room in the buffer for header and variable length field
         uint16_t length = MQTT_MAX_HEADER_SIZE;
         length = writeString(topic,this->buffer,length);
+
+        // QoS 1 and 2 need a message ID
+        if (QoS != MQTTQOS0) { // if we're using QoS
+            nextMsgId++;
+            if (nextMsgId == 0) nextMsgId = 1;
+
+            this->buffer[length++] = (nextMsgId >> 8);
+            this->buffer[length++] = (nextMsgId & 0xFF);
+        }
 
         // Add payload
         uint16_t i;
@@ -482,6 +494,7 @@ boolean PubSubClient::publish(const char* topic, const uint8_t* payload, unsigne
         if (retained) {
             header |= 1;
         }
+        header |= QoS;
         return write(header,this->buffer,length-MQTT_MAX_HEADER_SIZE);
     }
     return false;
